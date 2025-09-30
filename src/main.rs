@@ -70,27 +70,26 @@ fn main() {
         }
     };
 
-    let command = cli.command.as_ref().unwrap();
-    match command {
-        Commands::Add { path } => {
-            let conn = db::connect(&db_path).expect("Failed to connect to the database");
-            db::path::add(&conn, &path).expect("Failed to add a filepath");
-        }
-        Commands::Remove { path } => {
-            let conn = db::connect(&db_path).expect("Failed to connect to the database");
-            db::path::delete(&conn, &path).expect("Failed to remove a filepath");
-        }
-        Commands::List => {
-            let conn = db::connect(&db_path).expect("Failed to connect to the database");
-            let list = db::path::list(&conn).expect("Failed to list paths");
-            for path in list {
-                println!("{}", path);
+    if let Some(command) = cli.command {
+        match command {
+            Commands::Add { path } => {
+                let conn = db::connect(&db_path).expect("Failed to connect to the database");
+                db::path::add(&conn, &path).expect("Failed to add a filepath");
             }
+            Commands::Remove { path } => {
+                let conn = db::connect(&db_path).expect("Failed to connect to the database");
+                db::path::delete(&conn, &path).expect("Failed to remove a filepath");
+            }
+            Commands::List => {
+                let conn = db::connect(&db_path).expect("Failed to connect to the database");
+                let list = db::path::list(&conn).expect("Failed to list paths");
+                for path in list {
+                    println!("{}", path);
+                }
+            }
+            Commands::Init => db::init(&db_path).expect("Failed to initialize a database"),
         }
-        Commands::Init => db::init(&db_path).expect("Failed to initialize a database"),
-    }
-
-    if let Some(patient_id) = cli.patient_id {
+    } else if let Some(patient_id) = cli.patient_id {
         let conn = db::connect(&db_path).expect("Failed to connect to the database");
         let v = dcm_archive_find::find::by_patient_id(&conn, &patient_id)
             .expect("Unable to find the patient due to an error");
