@@ -33,7 +33,9 @@ pub mod find {
         let mut v = Vec::new();
         for path in list {
             let p = PathBuf::from(&path).join(month_day).join(&pid);
-            v.push(p);
+            if p.exists() {
+                v.push(p);
+            }
         }
         Ok(v)
     }
